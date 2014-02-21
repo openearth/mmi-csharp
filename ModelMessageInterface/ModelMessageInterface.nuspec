@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>ModelMessageInterface</id>
+    <title>Model Message Interface</title>
+    <version>1.0.0</version>
+    <authors>Gennadii Donchyts</authors>
+    <copyright>© Gennadii Donchyts 2013</copyright>    
+    <description>Send/receive moedel variables and values using ZMQ.</description>
+    <summary>-</summary>
+    <language>en-US</language>
+    <projectUrl>https://github.com/gena/ModelMessageInterface</projectUrl>
+    <licenseUrl>http://www.gnu.org/licenses/lgpl.html</licenseUrl>
+    <releaseNotes>... a list of changes in this release ...</releaseNotes>
+    <dependencies>
+      <dependency id="clrzmq" version="2.2.5" />
+      <dependency id="Newtonsoft.Json" version="6.0.1" />
+    </dependencies> 
+  </metadata>
+  <files>
+    <file src="bin\Release\ModelMessageInterface.dll " target="lib\Win32\ModelMessageInterface.dll" />
+  </files>
+</package>
