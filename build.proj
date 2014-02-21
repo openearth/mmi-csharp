@@ -1,0 +1,24 @@
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Framework>$(WINDIR)\Microsoft.NET\Framework\v4.0.30319</Framework>
+    <BuildPath>$(MSBuildProjectDirectory)</BuildPath>
+    <SolutionDir>$(MSBuildProjectDirectory)\src</SolutionDir> 
+    <SolutionName>src\ModelMessageInterface.sln</SolutionName>
+    <NuGetCmd>$(BuildPath)\build\NuGet</NuGetCmd>
+    <ProgramVersion>1.0.0</ProgramVersion>
+  </PropertyGroup>
+
+  <Target Name="Clean">
+    <MSBuild Projects="$(SolutionName)" Targets="Clean" Properties="Configuration=Release;SolutionDir=$(SolutionDir);StartUsingCommandLine=$(StartUsingCommandLine)" />
+  </Target>
+
+  <Target Name="Build">
+    <RemoveDir Directories="$(BuildPath)\target"/>
+    <MSBuild Projects="$(SolutionName)" Targets="Build" Properties="Configuration=Release;SolutionDir=$(SolutionDir);StartUsingCommandLine=$(StartUsingCommandLine)" />
+  </Target>
+
+  <Target Name="Pack">
+    <MakeDir Directories="$(BuildPath)\target"/>
+    <Exec Command="$(NuGetCmd) pack $(BuildPath)\src\ModelMessageInterface\ModelMessageInterface.nuspec -Version $(ProgramVersion)" WorkingDirectory="$(BuildPath)\target\" />
+  </Target>
+</Project>
