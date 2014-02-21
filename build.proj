@@ -4,7 +4,7 @@
     <BuildPath>$(MSBuildProjectDirectory)</BuildPath>
     <SolutionDir>$(MSBuildProjectDirectory)\src</SolutionDir> 
     <SolutionName>src\ModelMessageInterface.sln</SolutionName>
-    <NuGetCmd>$(BuildPath)\build\NuGet</NuGetCmd>
+    <NuGetCmd>$(BuildPath)\src\.nuget\NuGet</NuGetCmd>
     <ProgramVersion>1.0.0</ProgramVersion>
   </PropertyGroup>
 
