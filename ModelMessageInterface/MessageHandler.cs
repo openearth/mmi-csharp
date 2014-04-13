@@ -21,7 +21,7 @@ namespace ModelMessageInterface
         public static Array ToArray(byte[] bytes, string valueType, int[] shape)
         {
             Array values = Array.CreateInstance(SupportedTypes[valueType], shape);
-
+            
             Buffer.BlockCopy(bytes, 0, values, 0, bytes.Length);
 
             return values;
@@ -29,27 +29,35 @@ namespace ModelMessageInterface
 
         public static Message GetMessage(Socket socket)
         {
-            string json = socket.Recv(Encoding.UTF8);
+            var json = socket.Recv(Encoding.UTF8);
 
             Debug.WriteLine(json);
 
-            JObject jsonObject = JObject.Parse(json);
+            var jsonObject = JObject.Parse(json);
 
             var name = jsonObject.Value<string>("name");
-            int[] shape = jsonObject["shape"].Values<int>().ToArray();
+            var shape = jsonObject["shape"].Values<int>().ToArray();
             var dtype = jsonObject.Value<string>("dtype");
-            byte[] bytes = socket.Recv();
+            var bytes = socket.Recv();
+            var timestamp = jsonObject.Value<DateTime>("timestamp");
 
             // special case, zero-rank array (single value)
             shape = shape.Length == 0 ? new[] { 1 } : shape;
 
-            return new Message { Values = ToArray(bytes, dtype, shape), Name = name, Shape = shape };
+            return new Message
+            {
+                Values = ToArray(bytes, dtype, shape), 
+                Name = name, 
+                Shape = shape,
+                TimeStamp = timestamp
+            };
         }
 
         public struct Message
         {
             public string Name;
             public int[] Shape;
+            public DateTime TimeStamp;
             public Array Values;
         }
     }

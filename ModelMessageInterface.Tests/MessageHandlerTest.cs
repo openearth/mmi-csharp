@@ -10,6 +10,10 @@ namespace ModelMessageInterface.Tests
     [TestFixture]
     public class MessageHandlerTest
     {
+        private const string Host = "136.231.196.64";
+        
+        const int Port = 5558;
+
         [Test]
         public void ArrayTest()
         {
@@ -29,9 +33,11 @@ namespace ModelMessageInterface.Tests
                 var socket = context.Socket(SocketType.SUB);
 
                 socket.Subscribe(new byte[] { });
-                socket.Connect(Transport.TCP, "192.168.2.135", 5558);
+                socket.Connect(Transport.TCP, Host, Port);
 
                 var dt = new Stopwatch();
+
+                var timeDiff = default(TimeSpan);
 
                 for (var i = 0; i < 100; i++)
                 {
@@ -40,6 +46,15 @@ namespace ModelMessageInterface.Tests
                     var msg = MessageHandler.GetMessage(socket);
 
                     dt.Stop();
+
+                    if (timeDiff == default(TimeSpan))
+                    {
+                        timeDiff = DateTime.Now - msg.TimeStamp;
+                    }
+                    else
+                    {
+                        Debug.WriteLine("delay: " + (DateTime.Now - msg.TimeStamp - timeDiff));
+                    }
 
                     Debug.WriteLine(dt.ElapsedTicks * 1e-4 + " ms");
 
