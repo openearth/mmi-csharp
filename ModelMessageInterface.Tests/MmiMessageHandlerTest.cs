@@ -63,7 +63,7 @@ namespace ModelMessageInterface.Tests
                     Values = data
                 };
 
-                MmiMessageHandler.SendMessage(socket, message);
+                MmiMessageHandler.SendMessageAndData(socket, message);
             }
 
             private int[] GetShape(Array data)
@@ -117,43 +117,23 @@ namespace ModelMessageInterface.Tests
 
                 var stopwatch = new Stopwatch();
 
-                var finished = false;
                 var receiveDataTask = new Task(() =>
                 {
                     for (var i = 0; i < 10; i++)
                     {
                         stopwatch.Start();
 
-                        var message = MmiMessageHandler.ReceiveMessage(socket);
+                        var message = MmiMessageHandler.ReceiveMessageAndData(socket);
+
+                        message.Values.Cast<float>().Should().Have.SameSequenceAs(new float[] {1, 2, 3});
 
                         stopwatch.Stop();
 
-                        Debug.WriteLine("BG: message {0}, delay: {1}, received in: {2} ms", i,
-                            (DateTime.Now - message.TimeStamp), stopwatch.ElapsedTicks*1e-4);
-
-                        if (message.Name == "dps")
-                        {
-                            var valuesF = (float[,]) message.Values;
-                            var valuesD = new double[message.Shape[0], message.Shape[1]];
-
-                            for (var r = 0; r < message.Shape[0]; r++)
-                            {
-                                for (var c = 0; c < message.Shape[1]; c++)
-                                {
-                                    var v = valuesF[r, c];
-                                    valuesD[r, c] = v < 0 ? 0 : v;
-                                }
-                            }
-
-                            // ShowImage(valuesD);
-                            //Application.DoEvents();
-                        }
+                        Debug.WriteLine("BG: message {0}, delay: {1}, received in: {2} ms", i, (DateTime.Now - message.TimeStamp), stopwatch.ElapsedTicks*1e-4);
 
                         stopwatch.Reset();
                     }
 
-
-                    finished = true;
                 });
 
                 receiveDataTask.Start();

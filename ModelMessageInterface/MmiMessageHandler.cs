@@ -49,7 +49,7 @@ namespace ModelMessageInterface
             return array.Cast<double>().SelectMany(BitConverter.GetBytes).ToArray();
         }
 
-        public static MmiMessage ReceiveMessage(Socket socket)
+        public static MmiMessage ReceiveMessageAndData(Socket socket)
         {
             // receive message
             var json = socket.Recv(Encoding.UTF8);
@@ -64,7 +64,7 @@ namespace ModelMessageInterface
             return message;
         }
 
-        public static void SendMessage(Socket socket, MmiMessage message)
+        public static void SendMessageAndData(Socket socket, MmiMessage message)
         {
             // send message
             socket.Send(message.ToJson(), Encoding.UTF8, SendRecvOpt.SNDMORE);
