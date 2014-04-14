@@ -52,12 +52,12 @@ namespace ModelMessageInterface.Tests
                 socket.Bind(Transport.TCP, "*", Port);
             }
 
-            public void Send(Array data)
+            public void Send<T>(T[] data)
             {
                 var message = new MmiMessage
                 {
                     TimeStamp = DateTime.Now,
-                    DataType = "float32",
+                    DataType = MmiMessageHandler.GetDataTypeName(typeof(T)),
                     Name = "water level",
                     Shape = GetShape(data),
                     Values = data
@@ -107,6 +107,8 @@ namespace ModelMessageInterface.Tests
         [Test]
         public void SendAndReceive()
         {
+            var elementCount = 200000;
+
             server.Start(); // start server
 
             using (var context = new Context())
@@ -125,11 +127,11 @@ namespace ModelMessageInterface.Tests
 
                         var message = MmiMessageHandler.ReceiveMessageAndData(socket);
 
-                        message.Values.Cast<float>().Should().Have.SameSequenceAs(new float[] {1, 2, 3});
+                        message.Values.Cast<double>().Should().Have.SameSequenceAs(Enumerable.Repeat(1.0, elementCount).ToArray());
 
                         stopwatch.Stop();
 
-                        Debug.WriteLine("BG: message {0}, delay: {1}, received in: {2} ms", i, (DateTime.Now - message.TimeStamp), stopwatch.ElapsedTicks*1e-4);
+                        Debug.WriteLine("BG: message {0}, delay (latency): {1} ms, received in: {2} ms", i, (DateTime.Now - message.TimeStamp).TotalMilliseconds, stopwatch.ElapsedTicks*1e-4);
 
                         stopwatch.Reset();
                     }
@@ -139,10 +141,16 @@ namespace ModelMessageInterface.Tests
                 receiveDataTask.Start();
 
                 // send on the server side
+                var stopwatchServer = new Stopwatch();
                 for (var i = 0; i < 10; i++)
                 {
-                    server.Send(new float[] {1, 2, 3});
-                    Trace.WriteLine("MAIN: " + i);
+                    stopwatchServer.Start();
+                    server.Send(Enumerable.Repeat(1.0, elementCount).ToArray());
+                    stopwatchServer.Stop();
+                    Debug.WriteLine("MAIN: {0}, sent in {1} ms", i, stopwatchServer.ElapsedTicks*1e-4);
+                    stopwatchServer.Reset();
+                
+                    Thread.Sleep(20); // try commenting this, latency seems to depend a lot on whether we send messages in a row of after delay (10-90ms)
                 }
 
                 receiveDataTask.Wait();

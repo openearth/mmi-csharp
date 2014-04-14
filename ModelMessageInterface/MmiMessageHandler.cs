@@ -24,6 +24,11 @@ namespace ModelMessageInterface
             {"float64", typeof (double)}
         };
 
+        public static string GetDataTypeName(Type type)
+        {
+            return SupportedTypes.Keys.ElementAt(SupportedTypes.Values.ToList().IndexOf(type));
+        }
+
         public static Array BytesToArray(byte[] bytes, string valueType, int[] shape)
         {
             var values = Array.CreateInstance(SupportedTypes[valueType], shape);
@@ -33,20 +38,13 @@ namespace ModelMessageInterface
 
         public static byte[] ArrayToBytes(Array array)
         {
-            if (array.GetValue(0) is double)
-            {
-                return array.Cast<double>().SelectMany(BitConverter.GetBytes).ToArray();
-            }
-            if (array.GetValue(0) is float)
-            {
-                return array.Cast<float>().SelectMany(BitConverter.GetBytes).ToArray();
-            }
-            if (array.GetValue(0) is int)
-            {
-                return array.Cast<int>().SelectMany(BitConverter.GetBytes).ToArray();
-            }
-            
-            return array.Cast<double>().SelectMany(BitConverter.GetBytes).ToArray();
+            var elementSize = System.Runtime.InteropServices.Marshal.SizeOf(array.GetValue(0));
+            var size = array.Length * elementSize;
+            var bytes = new byte[size];
+
+            Buffer.BlockCopy(array, 0, bytes, 0, size);
+
+            return bytes;
         }
 
         public static MmiMessage ReceiveMessageAndData(Socket socket)
@@ -54,8 +52,6 @@ namespace ModelMessageInterface
             // receive message
             var json = socket.Recv(Encoding.UTF8);
             var message = MmiMessage.FromJson(json);
-
-            Debug.WriteLine(json);
 
             // receive data
             var bytes = socket.Recv();
@@ -108,6 +104,5 @@ namespace ModelMessageInterface
                 return propertyName.ToLower();
             }
         }
-
     }
 }
