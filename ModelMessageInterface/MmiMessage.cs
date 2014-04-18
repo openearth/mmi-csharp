@@ -1,20 +1,32 @@
 ﻿using System;
-using System.Linq;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Serialization;
 
 namespace ModelMessageInterface
 {
     public struct MmiMessage
     {
+        /// <summary>
+        /// Possible actions (request messages) are:
+        /// 
+        ///     initialize
+        ///     update
+        ///     finalize
+        /// 
+        ///     get_variable_count
+        ///     get_variable
+        ///     get_variable_info - query only variable information (no data)
+        ///     set_variable
+        /// 
+        /// </summary>
+        public string Action;
+        
         public string Name;
 
         public int[] Shape;
-        
-        public DateTime TimeStamp;
 
         public string DataType;
+
+        public DateTime TimeStamp;
 
         [JsonIgnore]
         public Array Values;

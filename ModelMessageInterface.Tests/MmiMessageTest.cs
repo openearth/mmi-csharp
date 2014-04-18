@@ -22,7 +22,7 @@ namespace ModelMessageInterface.Tests
 
             var json = message.ToJson();
 
-            var expected = @"{'name':'water flow','shape':[2,3],'timestamp':'0001-01-01T00:00:00','dtype':'float32'}".Replace('\'', '\"');
+            var expected = @"{'name':'water flow','shape':[2,3],'dtype':'float32','timestamp':'0001-01-01T00:00:00'}".Replace('\'', '\"');
 
             json.Should().Be.EqualTo(expected);
         }
@@ -30,7 +30,7 @@ namespace ModelMessageInterface.Tests
         [Test]
         public void FillFromJson()
         {
-            var json = @"{'name':'water flow','shape':[2,3],'timestamp':'0001-01-01T00:00:00','dtype':'float32'}".Replace('\'', '\"');
+            var json = @"{'name':'water flow','shape':[2,3],'dtype':'float32','timestamp':'0001-01-01T00:00:00'}".Replace('\'', '\"');
             var message = MmiMessage.FromJson(json);
 
             message.Name.Should().Be.EqualTo("water flow");

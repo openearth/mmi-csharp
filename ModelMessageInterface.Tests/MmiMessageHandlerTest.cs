@@ -107,7 +107,7 @@ namespace ModelMessageInterface.Tests
         [Test]
         public void SendAndReceive()
         {
-            var elementCount = 200000;
+            var elementCount = 500000;
 
             server.Start(); // start server
 
@@ -150,7 +150,7 @@ namespace ModelMessageInterface.Tests
                     Debug.WriteLine("MAIN: {0}, sent in {1} ms", i, stopwatchServer.ElapsedTicks*1e-4);
                     stopwatchServer.Reset();
                 
-                    Thread.Sleep(20); // try commenting this, latency seems to depend a lot on whether we send messages in a row of after delay (10-90ms)
+                    //Thread.Sleep(20); // try commenting this, latency seems to depend a lot on whether we send messages in a row of after delay (10-90ms)
                 }
 
                 receiveDataTask.Wait();
