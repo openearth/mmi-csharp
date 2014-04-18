@@ -51,11 +51,17 @@ namespace ModelMessageInterface
         {
             // receive message
             var json = socket.Recv(Encoding.UTF8);
-            var message = MmiMessage.FromJson(json);
+
+            var message = new MmiMessage();
+
+            message.FillFromJson(json);
 
             // receive data
-            var bytes = socket.Recv();
-            message.Values = BytesToArray(bytes, message.DataType, message.Shape);
+            if (socket.RcvMore)
+            {
+                var bytes = socket.Recv();
+                message.Values = BytesToArray(bytes, message.DataType, message.Shape);
+            }
 
             return message;
         }
@@ -63,45 +69,17 @@ namespace ModelMessageInterface
         public static void SendMessageAndData(Socket socket, MmiMessage message)
         {
             // send message
-            socket.Send(message.ToJson(), Encoding.UTF8, SendRecvOpt.SNDMORE);
-            
-            // send data
-            var bytes = ArrayToBytes(message.Values);
-            socket.Send(bytes);
-        }
-
-        private static readonly JsonSerializerSettings serializerSettings = new JsonSerializerSettings {ContractResolver = new LowercaseContractResolver()};
-
-        public static MmiMessage FromJson(string json)
-        {
-            var jsonObject = JObject.Parse(json);
-
-            var name = jsonObject.Value<string>("name");
-            var shape = jsonObject["shape"].Values<int>().ToArray();
-            var dtype = jsonObject.Value<string>("dtype");
-            var timestamp = jsonObject.Value<DateTime>("timestamp");
-
-            // special case, zero-rank array (single value)
-            shape = shape.Length == 0 ? new[] { 1 } : shape;
-
-            return new MmiMessage { Name = name, Shape = shape, DataType = dtype, TimeStamp = timestamp };
-        }
-
-        public static string ToJson(MmiMessage message)
-        {
-            return JsonConvert.SerializeObject(message, Formatting.None, serializerSettings);
-        }
-
-        public class LowercaseContractResolver : DefaultContractResolver
-        {
-            protected override string ResolvePropertyName(string propertyName)
+            if (message.Values == null)
             {
-                if (propertyName.Equals("DataType"))
-                {
-                    return "dtype";
-                }
+                socket.Send(message.ToJson(), Encoding.UTF8);
+            }
+            else
+            {
+                socket.Send(message.ToJson(), Encoding.UTF8, SendRecvOpt.SNDMORE);
 
-                return propertyName.ToLower();
+                // send data
+                var bytes = ArrayToBytes(message.Values);
+                socket.Send(bytes);
             }
         }
     }

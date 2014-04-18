@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 
 namespace ModelMessageInterface
 {
-    public struct MmiMessage
+    public class MmiMessage
     {
         /// <summary>
         /// Possible actions (request messages) are:
@@ -19,7 +19,12 @@ namespace ModelMessageInterface
         /// 
         /// </summary>
         public string Action;
-        
+
+        /// <summary>
+        /// Optional. Json string containing arguments. 
+        /// </summary>
+        public string Arguments; 
+
         public string Name;
 
         public int[] Shape;
@@ -30,15 +35,5 @@ namespace ModelMessageInterface
 
         [JsonIgnore]
         public Array Values;
-
-        public static MmiMessage FromJson(string json)
-        {
-            return MmiMessageHandler.FromJson(json);
-        }
-
-        public string ToJson()
-        {
-            return MmiMessageHandler.ToJson(this);
-        }
     }
 }

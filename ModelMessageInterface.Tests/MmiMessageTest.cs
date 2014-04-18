@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using NUnit.Framework;
 using SharpTestsEx;
 
@@ -25,13 +27,17 @@ namespace ModelMessageInterface.Tests
             var expected = @"{'name':'water flow','shape':[2,3],'dtype':'float32','timestamp':'0001-01-01T00:00:00'}".Replace('\'', '\"');
 
             json.Should().Be.EqualTo(expected);
+
+
+            var m = new MmiMessage();
         }
 
         [Test]
         public void FillFromJson()
         {
             var json = @"{'name':'water flow','shape':[2,3],'dtype':'float32','timestamp':'0001-01-01T00:00:00'}".Replace('\'', '\"');
-            var message = MmiMessage.FromJson(json);
+            var message = new MmiMessage();
+            message.FillFromJson(json);
 
             message.Name.Should().Be.EqualTo("water flow");
             message.Shape.Should().Have.SameSequenceAs(new[] {2, 3});

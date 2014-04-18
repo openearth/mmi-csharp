@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using SharpTestsEx;
@@ -15,68 +14,16 @@ namespace ModelMessageInterface.Tests
         [SetUp]
         public void SetUp()
         {
-            server = new Server();
+            mmiServer = new MmiServer();
         }
 
         [TearDown]
         public void TearDown()
         {
-            server.Dispose();
+            mmiServer.Dispose();
         }
 
-        private Server server;
-
-        private class Server : IDisposable
-        {
-            private readonly Context context;
-            private Socket socket;
-
-            public Server()
-            {
-                context = new Context();
-            }
-
-            public void Dispose()
-            {
-                if (socket != null)
-                {
-                    socket.Dispose();
-                }
-
-                context.Dispose();
-            }
-
-            public void Start()
-            {
-                socket = context.Socket(SocketType.PUB);
-                socket.Bind(Transport.TCP, "*", Port);
-            }
-
-            public void Send<T>(T[] data)
-            {
-                var message = new MmiMessage
-                {
-                    TimeStamp = DateTime.Now,
-                    DataType = MmiMessageHandler.GetDataTypeName(typeof(T)),
-                    Name = "water level",
-                    Shape = GetShape(data),
-                    Values = data
-                };
-
-                MmiMessageHandler.SendMessageAndData(socket, message);
-            }
-
-            private int[] GetShape(Array data)
-            {
-                var shape = new int[data.Rank];
-                for (var i = 0; i < data.Rank; i++)
-                {
-                    shape[i] = data.GetLength(i);
-                }
-
-                return shape;
-            }
-        }
+        private MmiServer mmiServer;
 
         private const string Host = "127.0.0.1";
 
@@ -107,9 +54,9 @@ namespace ModelMessageInterface.Tests
         [Test]
         public void SendAndReceive()
         {
-            var elementCount = 500000;
+            var elementCount = 1;
 
-            server.Start(); // start server
+            mmiServer.Start(Port); // start MmiServer
 
             using (var context = new Context())
             using (var socket = context.Socket(SocketType.SUB))
@@ -140,12 +87,12 @@ namespace ModelMessageInterface.Tests
 
                 receiveDataTask.Start();
 
-                // send on the server side
+                // send on the MmiServer side
                 var stopwatchServer = new Stopwatch();
                 for (var i = 0; i < 10; i++)
                 {
                     stopwatchServer.Start();
-                    server.Send(Enumerable.Repeat(1.0, elementCount).ToArray());
+                    mmiServer.Send(Enumerable.Repeat(1.0, elementCount).ToArray());
                     stopwatchServer.Stop();
                     Debug.WriteLine("MAIN: {0}, sent in {1} ms", i, stopwatchServer.ElapsedTicks*1e-4);
                     stopwatchServer.Reset();

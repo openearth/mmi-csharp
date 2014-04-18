@@ -97,6 +97,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MmiMessage.cs" />
+    <Compile Include="MmiMessageExtensions.cs" />
     <Compile Include="MmiMessageHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

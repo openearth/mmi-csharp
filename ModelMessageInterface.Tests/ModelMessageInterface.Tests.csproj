@@ -101,6 +101,7 @@
     <Compile Include="MmiMessageHandlerTest.cs" />
     <Compile Include="MmiMessageTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="MmiServer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
