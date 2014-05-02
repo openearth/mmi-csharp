@@ -27,9 +27,6 @@ namespace ModelMessageInterface.Tests
             var expected = @"{'name':'water flow','shape':[2,3],'dtype':'float32','timestamp':'0001-01-01T00:00:00'}".Replace('\'', '\"');
 
             json.Should().Be.EqualTo(expected);
-
-
-            var m = new MmiMessage();
         }
 
         [Test]
