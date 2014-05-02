@@ -1,5 +1,6 @@
 ﻿using System;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace ModelMessageInterface
 {
@@ -33,7 +34,10 @@ namespace ModelMessageInterface
 
         public DateTime TimeStamp;
 
-        [JsonIgnore]
-        public Array Values;
+        [JsonIgnore] public Array Values;
+
+        [JsonIgnore] public string JsonString;
+
+        [JsonIgnore] public JObject Json;
     }
 }

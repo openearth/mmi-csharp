@@ -12,23 +12,43 @@ namespace ModelMessageInterface
         {
             var jsonObject = JObject.Parse(json);
 
+            message.Json = jsonObject;
+
             message.Name = jsonObject.Value<string>("name");
-            message.Shape = jsonObject["shape"].Values<int>().ToArray();
+            
             message.DataType = jsonObject.Value<string>("dtype");
             message.TimeStamp = jsonObject.Value<DateTime>("timestamp");
 
+            var jsonObjectShape = jsonObject["shape"];
+            if (jsonObjectShape != null)
+            {
+                message.Shape = jsonObjectShape.Values<int>().ToArray();
+            }
+
+            message.Arguments = jsonObject.Value<string>("arguments");
+
+            message.Action = jsonObject.Value<string>("action");
+
             // special case, zero-rank array (single value)
-            message.Shape = message.Shape.Length == 0 ? new[] { 1 } : message.Shape;
+            if (message.Shape != null)
+            {
+                message.Shape = message.Shape.Length == 0 ? new[] {1} : message.Shape;
+            }
         }
 
         public static string ToJson(this MmiMessage message)
         {
-            return JsonConvert.SerializeObject(message, Formatting.None, serializerSettings);
+            message.JsonString = JsonConvert.SerializeObject(message, Formatting.None, SerializerSettings);
+            return message.JsonString;
         }
 
-        private static readonly JsonSerializerSettings serializerSettings = new JsonSerializerSettings { ContractResolver = new LowercaseContractResolver() };
+        private static readonly JsonSerializerSettings SerializerSettings = new JsonSerializerSettings
+        {
+            ContractResolver = new LowercaseContractResolver(),
+            NullValueHandling = NullValueHandling.Ignore
+        };
 
-        public class LowercaseContractResolver : DefaultContractResolver
+        private class LowercaseContractResolver : DefaultContractResolver
         {
             protected override string ResolvePropertyName(string propertyName)
             {

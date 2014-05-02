@@ -1,17 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Serialization;
 using ZMQ;
-using ZMQ.ZMQDevice;
 
 namespace ModelMessageInterface
 {
-    public static class MmiMessageHandler
+    public static class MmiHelper
     {
         /// <summary>
         /// Note, we use string representation of Python types here.
@@ -52,8 +47,7 @@ namespace ModelMessageInterface
             // receive message
             var json = socket.Recv(Encoding.UTF8);
 
-            var message = new MmiMessage();
-
+            var message = new MmiMessage {JsonString = json};
             message.FillFromJson(json);
 
             // receive data
@@ -68,19 +62,36 @@ namespace ModelMessageInterface
 
         public static void SendMessageAndData(Socket socket, MmiMessage message)
         {
-            // send message
+            var json = message.ToJson();
+
             if (message.Values == null)
             {
-                socket.Send(message.ToJson(), Encoding.UTF8);
+                socket.Send(json, Encoding.UTF8);
             }
             else
             {
-                socket.Send(message.ToJson(), Encoding.UTF8, SendRecvOpt.SNDMORE);
+                socket.Send(json, Encoding.UTF8, SendRecvOpt.SNDMORE);
 
                 // send data
                 var bytes = ArrayToBytes(message.Values);
                 socket.Send(bytes);
             }
+        }
+
+        /// <summary>
+        /// Parse connection string in a form "protocol://host:port"
+        /// </summary>
+        /// <param name="connectionString"></param>
+        /// <param name="host"></param>
+        /// <param name="port"></param>
+        /// <returns></returns>
+        public static void ParseConnectionString(string connectionString, out string protocol, out string host, out uint port)
+        {
+            var str = connectionString.Split(':');
+
+            protocol = str[0];
+            host = str[1].Substring(2);
+            port = uint.Parse(str[2]);
         }
     }
 }
