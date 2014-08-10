@@ -3,23 +3,24 @@
     <Framework>$(WINDIR)\Microsoft.NET\Framework\v4.0.30319</Framework>
     <BuildPath>$(MSBuildProjectDirectory)</BuildPath>
     <SolutionDir>$(MSBuildProjectDirectory)</SolutionDir> 
-    <SolutionName>ModelMessageInterface.sln</SolutionName>
+    <SolutionName>mmi-csharp.sln</SolutionName>
+    <Configuration>Debug</Configuration>
     <NuGetCmd>$(BuildPath)\.nuget\NuGet</NuGetCmd>
-    <ProgramVersion>1.0.0.0</ProgramVersion>
+    <ProgramVersion>1.0.0.1</ProgramVersion>
   </PropertyGroup>
 
   <Target Name="Clean">
-    <MSBuild Projects="$(SolutionName)" Targets="Clean" Properties="Configuration=Release;SolutionDir=$(SolutionDir);StartUsingCommandLine=$(StartUsingCommandLine)" />
+    <MSBuild Projects="$(SolutionName)" Targets="Clean" Properties="Configuration=$(Configuration);SolutionDir=$(SolutionDir);StartUsingCommandLine=$(StartUsingCommandLine)" />
   </Target>
 
   <Target Name="Build">
     <RemoveDir Directories="$(BuildPath)\target"/>
-    <MSBuild Projects="$(SolutionName)" Targets="Build" Properties="Configuration=Release;SolutionDir=$(SolutionDir);StartUsingCommandLine=$(StartUsingCommandLine)" />
+    <MSBuild Projects="$(SolutionName)" Targets="Build" Properties="Configuration=$(Configuration);SolutionDir=$(SolutionDir);StartUsingCommandLine=$(StartUsingCommandLine)" />
   </Target>
 
   <Target Name="Pack">
     <MakeDir Directories="$(BuildPath)\target"/>
-    <Exec Command="$(NuGetCmd) pack $(BuildPath)\ModelMessageInterface\ModelMessageInterface.nuspec -Version $(ProgramVersion)" WorkingDirectory="$(BuildPath)\target\" />
+    <Exec Command="$(NuGetCmd) pack $(BuildPath)\src\ModelMessageInterface\ModelMessageInterface.nuspec -Version $(ProgramVersion)" WorkingDirectory="$(BuildPath)\target\" />
     <Exec Command="$(NuGetCmd) push $(BuildPath)\target\ModelMessageInterface.$(ProgramVersion).nupkg -Source Local" />
   </Target>
 </Project>

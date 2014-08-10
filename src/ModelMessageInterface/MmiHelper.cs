@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Newtonsoft.Json;
 using ZMQ;
 
 namespace ModelMessageInterface
@@ -45,16 +46,25 @@ namespace ModelMessageInterface
         public static MmiMessage ReceiveMessageAndData(Socket socket)
         {
             // receive message
-            var json = socket.Recv(Encoding.UTF8);
+            string json;
 
-            var message = new MmiMessage {JsonString = json};
-            message.FillFromJson(json);
+            MmiMessage message;
 
-            // receive data
-            if (socket.RcvMore)
+            lock (socket)
             {
-                var bytes = socket.Recv();
-                message.Values = BytesToArray(bytes, message.DataType, message.Shape);
+                json = socket.Recv(Encoding.UTF8);
+
+                message = new MmiMessage {JsonString = json};
+                message.FillFromJson(json);
+
+                // receive data
+                if (socket.RcvMore)
+                {
+                    byte[] bytes;
+                    bytes = socket.Recv();
+
+                    message.Values = BytesToArray(bytes, message.DataType, message.Shape);
+                }
             }
 
             return message;
@@ -62,19 +72,68 @@ namespace ModelMessageInterface
 
         public static void SendMessageAndData(Socket socket, MmiMessage message)
         {
+            message.TimeStamp = DateTime.Now;
+
+            var values = message.Values;
+            if (values != null)
+            {
+                if (message.Shape == null)
+                {
+                    var shape = new int[values.Rank];
+                    for (var i = 0; i < values.Rank; i++)
+                    {
+                        shape[i] = values.GetLength(i);
+                    }
+                    message.Shape = shape;
+                }
+
+                if (string.IsNullOrEmpty(message.DataType))
+                {
+                    message.DataType = GetDataTypeName(values.GetValue(0).GetType());
+                }
+            }
+
             var json = message.ToJson();
 
-            if (message.Values == null)
+            if (values == null)
             {
-                socket.Send(json, Encoding.UTF8);
+                lock (socket)
+                {
+                    socket.Send(json, Encoding.UTF8);
+                }
             }
             else
             {
-                socket.Send(json, Encoding.UTF8, SendRecvOpt.SNDMORE);
+                lock (socket)
+                {
+                    socket.Send(json, Encoding.UTF8, SendRecvOpt.SNDMORE);
 
-                // send data
-                var bytes = ArrayToBytes(message.Values);
-                socket.Send(bytes);
+                    // send data
+                    var bytes = ArrayToBytes(values);
+
+                    socket.Send(bytes);
+                }
+            }
+        }
+
+        public static void SendMessage(Socket socket, object o, Array values = null)
+        {
+            var json = JsonConvert.SerializeObject(o);
+            
+            lock (socket)
+            {
+                if (values == null)
+                {
+                    socket.Send(json, Encoding.UTF8);
+                }
+                else
+                {
+                    socket.Send(json, Encoding.UTF8, SendRecvOpt.SNDMORE);
+
+                    // send data
+                    var bytes = ArrayToBytes(values);
+                    socket.Send(bytes);
+                }
             }
         }
 

@@ -2,22 +2,26 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>ModelMessageInterface</id>
-    <title>Model Message Interface</title>
-    <version>1.0.0.0</version>
+    <title>MMI - Model Message Interface</title>
+    <version>0.0.0.0</version>
     <authors>Gennadii Donchyts</authors>
     <copyright>© Deltares 2014</copyright>    
-    <description>Send/receive moedel variables and values using ZMQ.</description>
+    <description>Sends/receives moedel variables and values using ZMQ. See also https://github.com/openearth/bmi-csharp</description>
     <summary>-</summary>
     <language>en-US</language>
-    <projectUrl>https://github.com/gena/ModelMessageInterface</projectUrl>
+    <projectUrl>https://github.com/openearth/mmi-csharp</projectUrl>
     <licenseUrl>http://www.gnu.org/licenses/lgpl.html</licenseUrl>
-    <releaseNotes>... a list of changes in this release ...</releaseNotes>
+    <releaseNotes>
+    * implemented initialize / finalize
+    * switched to BMI 1.0.0.6
+    </releaseNotes>
     <dependencies>
       <dependency id="clrzmq" version="2.2.5" />
       <dependency id="Newtonsoft.Json" version="6.0.1" />
+      <dependency id="BasicModelInterface" version="1.0.0.7" />
     </dependencies> 
   </metadata>
   <files>
-    <file src="bin\x86\Debug\ModelMessageInterface.dll " target="lib\net45\ModelMessageInterface.dll" />
+    <file src="bin\Debug\ModelMessageInterface.dll " target="lib\net45\ModelMessageInterface.dll" />
   </files>
 </package>

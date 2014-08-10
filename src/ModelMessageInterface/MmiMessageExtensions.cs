@@ -27,6 +27,8 @@ namespace ModelMessageInterface
 
             message.Arguments = jsonObject.Value<string>("arguments");
 
+
+            // TODO: check keywords, if JSON has key 'get_var' - action = 'get_var'
             message.Action = jsonObject.Value<string>("action");
 
             // special case, zero-rank array (single value)
@@ -39,6 +41,7 @@ namespace ModelMessageInterface
         public static string ToJson(this MmiMessage message)
         {
             message.JsonString = JsonConvert.SerializeObject(message, Formatting.None, SerializerSettings);
+
             return message.JsonString;
         }
 
