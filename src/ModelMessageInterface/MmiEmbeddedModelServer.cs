@@ -15,14 +15,14 @@ namespace ModelMessageInterface
 
             public string ConfigFilePath;
 
-            public int PortOffset;
+            public uint Port;
 
             public Process Process;
             
             public string LogFilePath { get; set; }
         }
 
-        private static int currentPortOffset;
+        internal static uint currentPort = 6000;
 
         private static readonly List<MmiRunnerInfo> runners = new List<MmiRunnerInfo>();
 
@@ -40,12 +40,12 @@ namespace ModelMessageInterface
             // start runner
             var info = new MmiRunnerInfo
             {
-                PortOffset = currentPortOffset++,
+                Port = currentPort++,
                 ConfigFilePath = configFile,
                 Library = library
             };
 
-            var arguments = string.Format("{0} {1} --pause --disable-logger --port-offset {2}", info.Library, info.ConfigFilePath, info.PortOffset);
+            var arguments = string.Format("{0} {1} --pause --disable-logger --port-req {2}", info.Library, info.ConfigFilePath, info.Port);
 
             info.Process = new Process
             {
@@ -59,8 +59,7 @@ namespace ModelMessageInterface
                 }
             };
 
-            var port = info.PortOffset + 5600;
-            info.LogFilePath = "mmi-runner-" + Path.GetFileName(configFile) + "-" + port + ".log";
+            info.LogFilePath = "mmi-runner-" + Path.GetFileName(configFile) + "-" + info.Port + ".log";
             
             if (File.Exists(info.LogFilePath))
             {
@@ -84,7 +83,7 @@ namespace ModelMessageInterface
             }
 
             // connect client
-            var client = new MmiModelClient("tcp://localhost:" + port);
+            var client = new MmiModelClient("tcp://localhost:" + info.Port);
             client.Connect();
             clients.Add(client);
 

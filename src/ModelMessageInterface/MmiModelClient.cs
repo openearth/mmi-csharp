@@ -12,11 +12,26 @@ namespace ModelMessageInterface
     public class MmiModelClient : IBasicModelInterface, IDisposable
     {
         private static Context context;
-        private static Socket socket;
+        private Socket socket;
 
         readonly string protocol;
         readonly string host;
         readonly uint port;
+
+        public string Host
+        {
+            get { return host; }
+        }
+
+        public uint Port
+        {
+            get { return port; }
+        }
+
+        public string Protocol
+        {
+            get { return protocol; }
+        }
 
         public MmiModelClient(string connectionString)
         {
@@ -147,7 +162,7 @@ namespace ModelMessageInterface
             {
                 MmiHelper.SendMessage(socket, new { get_time_step = string.Empty, timestamp = DateTime.Now });
                 var reply = MmiHelper.ReceiveMessageAndData(socket);
-                var time = reply.Json.get_current_time.Value;
+                var time = reply.Json.get_time_step.Value;
                 return new TimeSpan(0, 0, 0, 0, (int)time * 1000);
             } 
         }
@@ -169,7 +184,7 @@ namespace ModelMessageInterface
             }
         }
 
-        private static void ReceiveReply()
+        private void ReceiveReply()
         {
             MmiHelper.ReceiveMessageAndData(socket); // reply
         }
