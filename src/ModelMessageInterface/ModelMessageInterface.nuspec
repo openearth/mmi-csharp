@@ -15,11 +15,6 @@
     * implemented initialize / finalize
     * switched to BMI 1.0.0.6
     </releaseNotes>
-    <dependencies>
-      <dependency id="clrzmq" version="2.2.5" />
-      <dependency id="Newtonsoft.Json" version="6.0.1" />
-      <dependency id="BasicModelInterface" version="1.0.0.7" />
-    </dependencies> 
   </metadata>
   <files>
     <file src="bin\Debug\ModelMessageInterface.dll " target="lib\net45\ModelMessageInterface.dll" />

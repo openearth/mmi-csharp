@@ -14,7 +14,6 @@ namespace ModelMessageInterface
         private readonly IBasicModelInterface model;
 
         private bool running;
-        private bool finished;
 
         private Context context;
         private Socket socket;
@@ -46,6 +45,7 @@ namespace ModelMessageInterface
             {
                 ProcessNextMessage();
             }
+
         }
 
         public void ProcessNextMessage()

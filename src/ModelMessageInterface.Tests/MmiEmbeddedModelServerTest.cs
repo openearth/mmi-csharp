@@ -8,6 +8,7 @@ namespace ModelMessageInterface.Tests
         [Test]
         public void StartInitializeKill()
         {
+			// TODO: Cleanup, use public model
             const string lib = @"D:\src\GitHub\bmi\models\vs2013\bin\Debug\model-cpp.dll";
             const string config = @".\config";
             
