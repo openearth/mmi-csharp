@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>ModelMessageInterface</RootNamespace>
     <AssemblyName>ModelMessageInterface</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
@@ -76,9 +76,9 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="BasicModelInterface, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="BasicModelInterface, Version=1.0.0.0, Culture=neutral, PublicKeyToken=5db7ba4b6cb956c8, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\BasicModelInterface.1.0.0.7\lib\net45\BasicModelInterface.dll</HintPath>
+      <HintPath>..\..\packages\BasicModelInterface.1.0.0.10\lib\net40\BasicModelInterface.dll</HintPath>
     </Reference>
     <Reference Include="clrzmq, Version=2.2.0.0, Culture=neutral, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>

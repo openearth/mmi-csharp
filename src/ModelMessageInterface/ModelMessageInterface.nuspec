@@ -12,16 +12,15 @@
     <projectUrl>https://github.com/openearth/mmi-csharp</projectUrl>
     <licenseUrl>http://www.gnu.org/licenses/lgpl.html</licenseUrl>
     <releaseNotes>
-    * implemented initialize / finalize
-    * switched to BMI 1.0.0.6
+    * switched to BMI 1.0.0.10
     </releaseNotes>
     <dependencies>
       <dependency id="clrzmq" version="2.2.5" />
       <dependency id="Newtonsoft.Json" version="6.0.1" />
-      <dependency id="BasicModelInterface" version="1.0.0.7" />
+      <dependency id="BasicModelInterface" version="1.0.0.10" />
     </dependencies> 
   </metadata>
   <files>
-    <file src="bin\Debug\ModelMessageInterface.dll " target="lib\net45\ModelMessageInterface.dll" />
+    <file src="bin\Debug\ModelMessageInterface.dll " target="lib\net40\ModelMessageInterface.dll" />
   </files>
 </package>

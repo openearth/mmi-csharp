@@ -6,7 +6,7 @@
     <SolutionName>mmi-csharp.sln</SolutionName>
     <Configuration>Debug</Configuration>
     <NuGetCmd>$(BuildPath)\.nuget\NuGet</NuGetCmd>
-    <ProgramVersion>1.0.0.1</ProgramVersion>
+    <ProgramVersion>1.0.0.2</ProgramVersion>
   </PropertyGroup>
 
   <Target Name="Clean">
