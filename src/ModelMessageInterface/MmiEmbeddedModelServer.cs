@@ -28,14 +28,14 @@ namespace ModelMessageInterface
 
         private static readonly List<MmiModelClient> clients = new List<MmiModelClient>();
 
-        public const string MmiRunnerPath = @"C:\Anaconda\Scripts\mmi-runner.exe";
+        public static string MmiRunnerPath = @"C:\Anaconda\Scripts\mmi-runner.exe";
 
         public static IEnumerable<MmiModelClient> StartedModels
         {
             get { return clients; }
         }
 
-        public static MmiModelClient StartModel(string library, string configFile)
+        public static MmiModelClient StartModel(string library, string configFile, params string[] options)
         {
             // start runner
             var info = new MmiRunnerInfo
@@ -45,7 +45,7 @@ namespace ModelMessageInterface
                 Library = library
             };
 
-            var arguments = string.Format("{0} {1} --pause --disable-logger --port-req {2}", info.Library, info.ConfigFilePath, info.Port);
+            var arguments = string.Format("{0} {1} --pause --disable-logger --port {2} {3}", info.Library, info.ConfigFilePath, info.Port, String.Join(@" ", options));
 
             info.Process = new Process
             {
