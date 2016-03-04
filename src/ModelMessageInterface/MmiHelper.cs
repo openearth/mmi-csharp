@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using NetMQ;
+using NetMQ.Sockets;
 using Newtonsoft.Json;
-using ZMQ;
 
 namespace ModelMessageInterface
 {
@@ -43,7 +44,7 @@ namespace ModelMessageInterface
             return bytes;
         }
 
-        public static MmiMessage ReceiveMessageAndData(Socket socket)
+        public static MmiMessage ReceiveMessageAndData(NetMQSocket socket)
         {
             // receive message
             string json;
@@ -52,16 +53,16 @@ namespace ModelMessageInterface
 
             lock (socket)
             {
-                json = socket.Recv(Encoding.UTF8);
+                json = socket.ReceiveFrameString();
 
                 message = new MmiMessage {JsonString = json};
                 message.FillFromJson(json);
 
                 // receive data
-                if (socket.RcvMore)
+                if (socket.HasIn)
                 {
                     byte[] bytes;
-                    bytes = socket.Recv();
+                    bytes = socket.ReceiveFrameBytes();
 
                     message.Values = BytesToArray(bytes, message.DataType, message.Shape);
                 }
@@ -70,7 +71,7 @@ namespace ModelMessageInterface
             return message;
         }
 
-        public static void SendMessageAndData(Socket socket, MmiMessage message)
+        public static void SendMessageAndData(NetMQSocket socket, MmiMessage message)
         {
             message.TimeStamp = DateTime.Now;
 
@@ -106,17 +107,16 @@ namespace ModelMessageInterface
             {
                 lock (socket)
                 {
-                    socket.Send(json, Encoding.UTF8, SendRecvOpt.SNDMORE);
-
-                    // send data
                     var bytes = ArrayToBytes(values);
 
-                    socket.Send(bytes);
+                    socket
+                           .SendMore(json, Encoding.UTF8)
+                           .Send(bytes);
                 }
             }
         }
 
-        public static void SendMessage(Socket socket, object o, Array values = null)
+        public static void SendMessage(NetMQSocket socket, object o, Array values = null)
         {
             var json = JsonConvert.SerializeObject(o);
             
@@ -128,11 +128,11 @@ namespace ModelMessageInterface
                 }
                 else
                 {
-                    socket.Send(json, Encoding.UTF8, SendRecvOpt.SNDMORE);
-
-                    // send data
                     var bytes = ArrayToBytes(values);
-                    socket.Send(bytes);
+
+                    socket
+                        .SendMore(json, Encoding.UTF8)
+                        .Send(bytes);
                 }
             }
         }

@@ -4,7 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using SharpTestsEx;
-using ZMQ;
+using NetMQ;
+using NetMQ.Sockets;
 
 namespace ModelMessageInterface.Tests
 {
@@ -42,12 +43,12 @@ namespace ModelMessageInterface.Tests
             const string host = "127.0.0.1";
             const uint port = 5558;
 
-            using (var context = new Context())
-            using (var server = context.Socket(SocketType.REP)) // server
-            using (var client = context.Socket(SocketType.REQ)) // client
+            using (var context = NetMQContext.Create())
+            using (var server = context.CreateResponseSocket()) // server
+            using (var client = context.CreateRequestSocket()) // client
             {
-                server.Bind(Transport.TCP, host, port);
-                client.Connect(Transport.TCP, host, port);
+                server.Bind("tcp://" + host + ":" + port);
+                client.Connect("tcp://" + host + ":" + port);
 
 
                 var array = new double[] { 1, 2, 3 };
