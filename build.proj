@@ -4,7 +4,7 @@
     <BuildPath>$(MSBuildProjectDirectory)</BuildPath>
     <SolutionDir>$(MSBuildProjectDirectory)</SolutionDir> 
     <SolutionName>mmi-csharp.sln</SolutionName>
-    <Configuration>Debug</Configuration>
+    <Configuration>Release</Configuration>
     <NuGetCmd>$(BuildPath)\.nuget\NuGet</NuGetCmd>
     <ProgramVersion>1.0.0.6</ProgramVersion>
   </PropertyGroup>
