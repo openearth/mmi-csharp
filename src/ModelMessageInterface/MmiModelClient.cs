@@ -21,6 +21,8 @@ namespace ModelMessageInterface
         readonly string host;
         readonly uint port;
 
+        internal bool IsServerExited { get; set; }
+
         public string Host
         {
             get { return host; }
@@ -189,7 +191,16 @@ namespace ModelMessageInterface
 
         private void ReceiveReply()
         {
+            CheckServerStatus();
             MmiHelper.ReceiveMessageAndData(socket); // reply
+        }
+
+        private void CheckServerStatus()
+        {
+            if (IsServerExited)
+            {
+                throw new NetMQException("Server has exited");
+            }
         }
     }
 }

@@ -68,7 +68,8 @@ namespace ModelMessageInterface
 
             info.Process.OutputDataReceived += (sender, args) => WriteOutput(info, args.Data);
             info.Process.ErrorDataReceived += (sender, args) => WriteOutput(info, args.Data);
-            info.Process.Exited += ProcessOnExited;
+            info.Process.EnableRaisingEvents = true;
+            info.Process.Exited += (sender, args) => ProcessOnExited(sender, args, info);
 
             info.Process.Start();
 
@@ -98,8 +99,12 @@ namespace ModelMessageInterface
             }
         }
 
-        private static void ProcessOnExited(object sender, EventArgs eventArgs)
+        private static void ProcessOnExited(object sender, EventArgs eventArgs, MmiRunnerInfo info)
         {
+            var index = runners.IndexOf(info);
+            clients[index].IsServerExited = true;
+
+            Console.WriteLine("Model runner process has exited");
             // TODO: cleanup
         }
 

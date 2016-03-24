@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using System.IO;
+using NUnit.Framework;
 
 namespace ModelMessageInterface.Tests
 {
@@ -8,13 +9,14 @@ namespace ModelMessageInterface.Tests
         [Test]
         public void StartInitializeKill()
         {
-            const string lib = @"D:\src\GitHub\bmi\models\vs2013\bin\Debug\model-cpp.dll";
-            const string config = @".\config";
+            string lib = Path.GetFullPath(@"..\..\..\..\shared\simpleBmiModel\model-cpp.dll");
+            string config = Path.GetFullPath(@"..\..\..\..\shared\simpleBmiModel\config");
+            MmiEmbeddedModelServer.MmiRunnerPath = Path.GetFullPath(@"..\..\..\..\shared\simpleBmiModel\mmi-runner.exe");
             
             var model = MmiEmbeddedModelServer.StartModel(lib, config);
             model.Update(-1);
 
             MmiEmbeddedModelServer.StopModel(model);
         }
-    }
+    }    
 }

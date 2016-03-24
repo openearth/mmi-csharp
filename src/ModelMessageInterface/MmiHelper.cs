@@ -21,6 +21,8 @@ namespace ModelMessageInterface
             {"float64", typeof (double)}
         };
 
+        private static TimeSpan timeout = new TimeSpan(0, 0, 0, 5);
+
         public static string GetDataTypeName(Type type)
         {
             return SupportedTypes.Keys.ElementAt(SupportedTypes.Values.ToList().IndexOf(type));
@@ -47,13 +49,16 @@ namespace ModelMessageInterface
         public static MmiMessage ReceiveMessageAndData(NetMQSocket socket)
         {
             // receive message
-            string json;
+            string json = "";
 
             MmiMessage message;
 
             lock (socket)
             {
-                json = socket.ReceiveFrameString();
+                if (!socket.TryReceiveFrameString(timeout, out json))
+                {
+                    throw new NetMQException("Timeout during receive");
+                }
 
                 message = new MmiMessage {JsonString = json};
                 message.FillFromJson(json);
@@ -100,7 +105,10 @@ namespace ModelMessageInterface
             {
                 lock (socket)
                 {
-                    socket.Send(json, Encoding.UTF8);
+                    if (!socket.TrySendFrame(timeout, json))
+                    {
+                        throw new NetMQException("Timeout during send");
+                    }
                 }
             }
             else
@@ -109,9 +117,15 @@ namespace ModelMessageInterface
                 {
                     var bytes = ArrayToBytes(values);
 
-                    socket
-                           .SendMore(json, Encoding.UTF8)
-                           .Send(bytes);
+                    if (!socket.TrySendFrame(timeout, json, true))
+                    {
+                        throw new NetMQException("Timeout during send");
+                    }
+
+                    if (!socket.TrySendFrame(timeout, bytes))
+                    {
+                        throw new NetMQException("Timeout during send");
+                    }
                 }
             }
         }
@@ -124,15 +138,24 @@ namespace ModelMessageInterface
             {
                 if (values == null)
                 {
-                    socket.Send(json, Encoding.UTF8);
+                    if (!socket.TrySendFrame(timeout, json))
+                    {
+                        throw new NetMQException("Timeout during send");
+                    }
                 }
                 else
                 {
                     var bytes = ArrayToBytes(values);
 
-                    socket
-                        .SendMore(json, Encoding.UTF8)
-                        .Send(bytes);
+                    if (!socket.TrySendFrame(timeout, json, true))
+                    {
+                        throw new NetMQException("Timeout during send");
+                    }
+
+                    if (!socket.TrySendFrame(timeout, bytes))
+                    {
+                        throw new NetMQException("Timeout during send");
+                    }
                 }
             }
         }
