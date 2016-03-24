@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using NetMQ;
+using NetMQ.Sockets;
 using Newtonsoft.Json;
-using ZMQ;
 
 namespace ModelMessageInterface
 {
@@ -19,6 +20,8 @@ namespace ModelMessageInterface
             {"float32", typeof (float)},
             {"float64", typeof (double)}
         };
+
+        private static TimeSpan timeout = new TimeSpan(0, 0, 0, 5);
 
         public static string GetDataTypeName(Type type)
         {
@@ -43,25 +46,28 @@ namespace ModelMessageInterface
             return bytes;
         }
 
-        public static MmiMessage ReceiveMessageAndData(Socket socket)
+        public static MmiMessage ReceiveMessageAndData(NetMQSocket socket)
         {
             // receive message
-            string json;
+            string json = "";
 
             MmiMessage message;
 
             lock (socket)
             {
-                json = socket.Recv(Encoding.UTF8);
+                if (!socket.TryReceiveFrameString(timeout, out json))
+                {
+                    throw new NetMQException("Timeout during receive");
+                }
 
                 message = new MmiMessage {JsonString = json};
                 message.FillFromJson(json);
 
                 // receive data
-                if (socket.RcvMore)
+                if (socket.HasIn)
                 {
                     byte[] bytes;
-                    bytes = socket.Recv();
+                    bytes = socket.ReceiveFrameBytes();
 
                     message.Values = BytesToArray(bytes, message.DataType, message.Shape);
                 }
@@ -70,7 +76,7 @@ namespace ModelMessageInterface
             return message;
         }
 
-        public static void SendMessageAndData(Socket socket, MmiMessage message)
+        public static void SendMessageAndData(NetMQSocket socket, MmiMessage message)
         {
             message.TimeStamp = DateTime.Now;
 
@@ -99,24 +105,32 @@ namespace ModelMessageInterface
             {
                 lock (socket)
                 {
-                    socket.Send(json, Encoding.UTF8);
+                    if (!socket.TrySendFrame(timeout, json))
+                    {
+                        throw new NetMQException("Timeout during send");
+                    }
                 }
             }
             else
             {
                 lock (socket)
                 {
-                    socket.Send(json, Encoding.UTF8, SendRecvOpt.SNDMORE);
-
-                    // send data
                     var bytes = ArrayToBytes(values);
 
-                    socket.Send(bytes);
+                    if (!socket.TrySendFrame(timeout, json, true))
+                    {
+                        throw new NetMQException("Timeout during send");
+                    }
+
+                    if (!socket.TrySendFrame(timeout, bytes))
+                    {
+                        throw new NetMQException("Timeout during send");
+                    }
                 }
             }
         }
 
-        public static void SendMessage(Socket socket, object o, Array values = null)
+        public static void SendMessage(NetMQSocket socket, object o, Array values = null)
         {
             var json = JsonConvert.SerializeObject(o);
             
@@ -124,15 +138,24 @@ namespace ModelMessageInterface
             {
                 if (values == null)
                 {
-                    socket.Send(json, Encoding.UTF8);
+                    if (!socket.TrySendFrame(timeout, json))
+                    {
+                        throw new NetMQException("Timeout during send");
+                    }
                 }
                 else
                 {
-                    socket.Send(json, Encoding.UTF8, SendRecvOpt.SNDMORE);
-
-                    // send data
                     var bytes = ArrayToBytes(values);
-                    socket.Send(bytes);
+
+                    if (!socket.TrySendFrame(timeout, json, true))
+                    {
+                        throw new NetMQException("Timeout during send");
+                    }
+
+                    if (!socket.TrySendFrame(timeout, bytes))
+                    {
+                        throw new NetMQException("Timeout during send");
+                    }
                 }
             }
         }

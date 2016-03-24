@@ -3,24 +3,24 @@
   <metadata>
     <id>ModelMessageInterface</id>
     <title>MMI - Model Message Interface</title>
-    <version>0.0.0.0</version>
+    <version>1.0.0.6</version>
     <authors>Gennadii Donchyts</authors>
     <copyright>© Deltares 2014</copyright>    
-    <description>Sends/receives moedel variables and values using ZMQ. See also https://github.com/openearth/bmi-csharp</description>
+    <description>Sends/receives model variables and values using ZMQ. See also https://github.com/openearth/bmi-csharp</description>
     <summary>-</summary>
     <language>en-US</language>
     <projectUrl>https://github.com/openearth/mmi-csharp</projectUrl>
     <licenseUrl>http://www.gnu.org/licenses/lgpl.html</licenseUrl>
     <releaseNotes>
-    * switched to BMI 1.0.0.10
+        Switched to NetMQ library
     </releaseNotes>
     <dependencies>
-      <dependency id="clrzmq" version="2.2.5" />
-      <dependency id="Newtonsoft.Json" version="6.0.1" />
+      <dependency id="NetMQ" version="3.3.2.2" />
+      <dependency id="Newtonsoft.Json" version="7.0.1" />
       <dependency id="BasicModelInterface" version="1.0.0.10" />
     </dependencies> 
   </metadata>
   <files>
-    <file src="bin\Debug\ModelMessageInterface.dll " target="lib\net40\ModelMessageInterface.dll" />
+    <file src="bin\Release\ModelMessageInterface.dll " target="lib\net40\ModelMessageInterface.dll" />
   </files>
 </package>

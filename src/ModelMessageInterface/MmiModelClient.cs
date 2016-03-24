@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Linq;
+using System.Net.Sockets;
 using BasicModelInterface;
+using NetMQ;
+using NetMQ.Sockets;
 using Newtonsoft.Json;
-using ZMQ;
+
 
 namespace ModelMessageInterface
 {
@@ -11,12 +14,14 @@ namespace ModelMessageInterface
     /// </summary>
     public class MmiModelClient : IBasicModelInterface, IDisposable
     {
-        private static Context context;
-        private Socket socket;
+        private static NetMQ.NetMQContext context;
+        private NetMQSocket socket;
 
         readonly string protocol;
         readonly string host;
         readonly uint port;
+
+        internal bool IsServerExited { get; set; }
 
         public string Host
         {
@@ -47,10 +52,10 @@ namespace ModelMessageInterface
         {
             if (context == null)
             {
-                context = new Context();
+                context = NetMQContext.Create();
             }
-            socket = context.Socket(SocketType.REQ);
-            socket.Connect(Transport.TCP, host, port);
+            socket = context.CreateRequestSocket();
+            socket.Connect("tcp://" + host + ":" + port);
         }
 
         public int Initialize(string configFile)
@@ -186,7 +191,16 @@ namespace ModelMessageInterface
 
         private void ReceiveReply()
         {
+            CheckServerStatus();
             MmiHelper.ReceiveMessageAndData(socket); // reply
+        }
+
+        private void CheckServerStatus()
+        {
+            if (IsServerExited)
+            {
+                throw new NetMQException("Server has exited");
+            }
         }
     }
 }

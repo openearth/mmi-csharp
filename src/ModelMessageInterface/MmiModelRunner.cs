@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
 using BasicModelInterface;
+using NetMQ;
 using Newtonsoft.Json.Linq;
-using ZMQ;
 
 namespace ModelMessageInterface
 {
@@ -16,8 +16,8 @@ namespace ModelMessageInterface
         private bool running;
         private bool finished;
 
-        private Context context;
-        private Socket socket;
+        private NetMQContext context;
+        private NetMQSocket socket;
         
         private readonly string protocol;
         private readonly string host;
@@ -101,13 +101,13 @@ namespace ModelMessageInterface
 
         public void Bind()
         {
-            context = new Context();
+            context = NetMQContext.Create();
 
-            socket = context.Socket(SocketType.REP);
+            socket = context.CreateResponseSocket();
 
             Trace.Assert(Protocol.ToLower().Equals("tcp"), "Only TCP is supported for now");
 
-            socket.Bind(Transport.TCP, Host, Port);
+            socket.Bind("tcp://" + Host + ":" + Port);
         }
 
         public void Dispose()
