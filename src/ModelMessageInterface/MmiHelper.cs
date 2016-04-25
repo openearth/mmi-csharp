@@ -10,6 +10,11 @@ namespace ModelMessageInterface
 {
     public static class MmiHelper
     {
+        static MmiHelper()
+        {
+            Timeout = new TimeSpan(0, 0, 0, 5);
+        }
+
         /// <summary>
         /// Note, we use string representation of Python types here.
         /// </summary>
@@ -21,7 +26,7 @@ namespace ModelMessageInterface
             {"float64", typeof (double)}
         };
 
-        private static TimeSpan timeout = new TimeSpan(0, 0, 0, 5);
+        public static TimeSpan Timeout { get; set; }
 
         public static string GetDataTypeName(Type type)
         {
@@ -55,7 +60,7 @@ namespace ModelMessageInterface
 
             lock (socket)
             {
-                if (!socket.TryReceiveFrameString(timeout, out json))
+                if (!socket.TryReceiveFrameString(Timeout, out json))
                 {
                     throw new NetMQException("Timeout during receive");
                 }
@@ -105,7 +110,7 @@ namespace ModelMessageInterface
             {
                 lock (socket)
                 {
-                    if (!socket.TrySendFrame(timeout, json))
+                    if (!socket.TrySendFrame(Timeout, json))
                     {
                         throw new NetMQException("Timeout during send");
                     }
@@ -117,12 +122,12 @@ namespace ModelMessageInterface
                 {
                     var bytes = ArrayToBytes(values);
 
-                    if (!socket.TrySendFrame(timeout, json, true))
+                    if (!socket.TrySendFrame(Timeout, json, true))
                     {
                         throw new NetMQException("Timeout during send");
                     }
 
-                    if (!socket.TrySendFrame(timeout, bytes))
+                    if (!socket.TrySendFrame(Timeout, bytes))
                     {
                         throw new NetMQException("Timeout during send");
                     }
@@ -138,7 +143,7 @@ namespace ModelMessageInterface
             {
                 if (values == null)
                 {
-                    if (!socket.TrySendFrame(timeout, json))
+                    if (!socket.TrySendFrame(Timeout, json))
                     {
                         throw new NetMQException("Timeout during send");
                     }
@@ -147,12 +152,12 @@ namespace ModelMessageInterface
                 {
                     var bytes = ArrayToBytes(values);
 
-                    if (!socket.TrySendFrame(timeout, json, true))
+                    if (!socket.TrySendFrame(Timeout, json, true))
                     {
                         throw new NetMQException("Timeout during send");
                     }
 
-                    if (!socket.TrySendFrame(timeout, bytes))
+                    if (!socket.TrySendFrame(Timeout, bytes))
                     {
                         throw new NetMQException("Timeout during send");
                     }
