@@ -48,6 +48,12 @@ namespace ModelMessageInterface
             }
         }
 
+        public TimeSpan Timeout
+        {
+            get { return MmiHelper.Timeout; }
+            set { MmiHelper.Timeout = value; }
+        }
+
         public void Connect()
         {
             if (context == null)
