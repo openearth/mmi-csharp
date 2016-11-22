@@ -12,7 +12,7 @@ namespace ModelMessageInterface
     {
         static MmiHelper()
         {
-            Timeout = new TimeSpan(0, 0, 0, 5);
+            Timeout = new TimeSpan(0, 0, 0, 10);
         }
 
         /// <summary>
@@ -53,26 +53,31 @@ namespace ModelMessageInterface
 
         public static MmiMessage ReceiveMessageAndData(NetMQSocket socket)
         {
-            // receive message
-            string json = "";
-
             MmiMessage message;
 
             lock (socket)
             {
-                if (!socket.TryReceiveFrameString(Timeout, out json))
+                string json;
+                bool more;
+                var msg = new Msg();
+                msg.InitEmpty();
+                if (!socket.TryReceiveFrameString(Timeout, out json, out more))
                 {
                     throw new NetMQException("Timeout during receive");
                 }
 
-                message = new MmiMessage {JsonString = json};
+
+                message = new MmiMessage { JsonString = json };
                 message.FillFromJson(json);
 
                 // receive data
                 if (socket.HasIn)
                 {
                     byte[] bytes;
-                    bytes = socket.ReceiveFrameBytes();
+                    if (!socket.TryReceiveFrameBytes(Timeout, out bytes))
+                    {
+                        throw new NetMQException("Timeout during receive bytes");
+                    }
 
                     message.Values = BytesToArray(bytes, message.DataType, message.Shape);
                 }
@@ -138,7 +143,7 @@ namespace ModelMessageInterface
         public static void SendMessage(NetMQSocket socket, object o, Array values = null)
         {
             var json = JsonConvert.SerializeObject(o);
-            
+
             lock (socket)
             {
                 if (values == null)
