@@ -35,7 +35,7 @@ namespace ModelMessageInterface
             get { return clients; }
         }
 
-        public static MmiModelClient StartModel(string library, string configFile, params string[] options)
+        public static MmiModelClient StartModel(string library, string configFile, bool createNoWindow = false, params string[] options)
         {
             // start runner
             var info = new MmiRunnerInfo
@@ -53,6 +53,7 @@ namespace ModelMessageInterface
                 {
                     WindowStyle = ProcessWindowStyle.Hidden,
                     WorkingDirectory = Path.GetDirectoryName(configFile),
+                    CreateNoWindow = createNoWindow,
                     UseShellExecute = false,
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,

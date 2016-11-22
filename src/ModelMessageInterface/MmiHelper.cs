@@ -10,6 +10,11 @@ namespace ModelMessageInterface
 {
     public static class MmiHelper
     {
+        static MmiHelper()
+        {
+            Timeout = new TimeSpan(0, 0, 0, 10);
+        }
+
         /// <summary>
         /// Note, we use string representation of Python types here.
         /// </summary>
@@ -21,7 +26,7 @@ namespace ModelMessageInterface
             {"float64", typeof (double)}
         };
 
-        private static TimeSpan timeout = new TimeSpan(0, 0, 0, 5);
+        public static TimeSpan Timeout { get; set; }
 
         public static string GetDataTypeName(Type type)
         {
@@ -48,26 +53,31 @@ namespace ModelMessageInterface
 
         public static MmiMessage ReceiveMessageAndData(NetMQSocket socket)
         {
-            // receive message
-            string json = "";
-
             MmiMessage message;
 
             lock (socket)
             {
-                if (!socket.TryReceiveFrameString(timeout, out json))
+                string json;
+                bool more;
+                var msg = new Msg();
+                msg.InitEmpty();
+                if (!socket.TryReceiveFrameString(Timeout, out json, out more))
                 {
                     throw new NetMQException("Timeout during receive");
                 }
 
-                message = new MmiMessage {JsonString = json};
+
+                message = new MmiMessage { JsonString = json };
                 message.FillFromJson(json);
 
                 // receive data
                 if (socket.HasIn)
                 {
                     byte[] bytes;
-                    bytes = socket.ReceiveFrameBytes();
+                    if (!socket.TryReceiveFrameBytes(Timeout, out bytes))
+                    {
+                        throw new NetMQException("Timeout during receive bytes");
+                    }
 
                     message.Values = BytesToArray(bytes, message.DataType, message.Shape);
                 }
@@ -105,7 +115,7 @@ namespace ModelMessageInterface
             {
                 lock (socket)
                 {
-                    if (!socket.TrySendFrame(timeout, json))
+                    if (!socket.TrySendFrame(Timeout, json))
                     {
                         throw new NetMQException("Timeout during send");
                     }
@@ -117,12 +127,12 @@ namespace ModelMessageInterface
                 {
                     var bytes = ArrayToBytes(values);
 
-                    if (!socket.TrySendFrame(timeout, json, true))
+                    if (!socket.TrySendFrame(Timeout, json, true))
                     {
                         throw new NetMQException("Timeout during send");
                     }
 
-                    if (!socket.TrySendFrame(timeout, bytes))
+                    if (!socket.TrySendFrame(Timeout, bytes))
                     {
                         throw new NetMQException("Timeout during send");
                     }
@@ -133,12 +143,12 @@ namespace ModelMessageInterface
         public static void SendMessage(NetMQSocket socket, object o, Array values = null)
         {
             var json = JsonConvert.SerializeObject(o);
-            
+
             lock (socket)
             {
                 if (values == null)
                 {
-                    if (!socket.TrySendFrame(timeout, json))
+                    if (!socket.TrySendFrame(Timeout, json))
                     {
                         throw new NetMQException("Timeout during send");
                     }
@@ -147,12 +157,12 @@ namespace ModelMessageInterface
                 {
                     var bytes = ArrayToBytes(values);
 
-                    if (!socket.TrySendFrame(timeout, json, true))
+                    if (!socket.TrySendFrame(Timeout, json, true))
                     {
                         throw new NetMQException("Timeout during send");
                     }
 
-                    if (!socket.TrySendFrame(timeout, bytes))
+                    if (!socket.TrySendFrame(Timeout, bytes))
                     {
                         throw new NetMQException("Timeout during send");
                     }
