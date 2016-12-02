@@ -6,7 +6,7 @@
     <SolutionName>mmi-csharp.sln</SolutionName>
     <Configuration>Release</Configuration>
     <NuGetCmd>$(BuildPath)\.nuget\NuGet</NuGetCmd>
-    <ProgramVersion>1.0.0.6</ProgramVersion>
+    <ProgramVersion>1.0.0.8</ProgramVersion>
   </PropertyGroup>
 
   <Target Name="Clean">

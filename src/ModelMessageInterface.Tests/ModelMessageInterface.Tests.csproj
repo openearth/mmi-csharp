@@ -109,6 +109,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MmiClientTest.cs" />
     <Compile Include="MmiEmbeddedModelServerTest.cs" />
     <Compile Include="MmiModelClientServerTest.cs" />
     <Compile Include="MmiHelperTest.cs" />

@@ -103,7 +103,12 @@ namespace ModelMessageInterface
         {
             context = NetMQContext.Create();
 
+            if (socket != null)
+            {
+                throw new NetMQException("Attempt to set socket that was already defined. This would prevent successful dispose of the context later on (since we can no longer close all sockets).");
+            }
             socket = context.CreateResponseSocket();
+            socket.Options.Linger = new TimeSpan(0, 0, 0, 1);
 
             Trace.Assert(Protocol.ToLower().Equals("tcp"), "Only TCP is supported for now");
 

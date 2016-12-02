@@ -48,13 +48,24 @@ namespace ModelMessageInterface
             }
         }
 
+        public TimeSpan Timeout
+        {
+            get { return MmiHelper.Timeout; }
+            set { MmiHelper.Timeout = value; }
+        }
+
         public void Connect()
         {
             if (context == null)
             {
                 context = NetMQContext.Create();
             }
+            if (socket != null)
+            {
+                throw new NetMQException("Attempt to set socket that was already defined. This would prevent successful dispose of the context later on (since we can no longer close all sockets).");
+            }
             socket = context.CreateRequestSocket();
+            socket.Options.Linger = new TimeSpan(0, 0, 0, 1);
             socket.Connect("tcp://" + host + ":" + port);
         }
 
@@ -146,9 +157,40 @@ namespace ModelMessageInterface
             MmiHelper.ReceiveMessageAndData(socket);
         }
 
-        public DateTime StartTime { get; private set; }
+        public DateTime StartTime
+        {
+            get
+            {
+                MmiHelper.SendMessage(socket, new { get_start_time = string.Empty, timestamp = DateTime.Now });
+                var reply = MmiHelper.ReceiveMessageAndData(socket);
+                var time = reply.Json.get_start_time.Value;
+                return new DateTime().AddSeconds(time);
+            }
+            private set { }
+        }
 
-        public DateTime StopTime { get; private set; }
+        public DateTime StopTime
+        {
+            get
+            {
+                MmiHelper.SendMessage(socket, new { get_end_time = string.Empty, timestamp = DateTime.Now });
+                var reply = MmiHelper.ReceiveMessageAndData(socket);
+                var time = reply.Json.get_end_time.Value;
+                return new DateTime().AddSeconds(time);
+            }
+            private set { }
+        }
+
+        public TimeSpan TimeStep
+        {
+            get
+            {
+                MmiHelper.SendMessage(socket, new { get_time_step = string.Empty, timestamp = DateTime.Now });
+                var reply = MmiHelper.ReceiveMessageAndData(socket);
+                var time = reply.Json.get_time_step.Value;
+                return new TimeSpan(0, 0, 0, (int)time);
+            }
+        }
 
         public DateTime CurrentTime
         {
@@ -161,17 +203,6 @@ namespace ModelMessageInterface
             }
         }
 
-        public TimeSpan TimeStep 
-        {
-            get
-            {
-                MmiHelper.SendMessage(socket, new { get_time_step = string.Empty, timestamp = DateTime.Now });
-                var reply = MmiHelper.ReceiveMessageAndData(socket);
-                var time = reply.Json.get_time_step.Value;
-                return new TimeSpan(0, 0, 0, 0, (int)time * 1000);
-            } 
-        }
-
         public string[] VariableNames { get; private set; }
         
         public Logger Logger { get; set; }
@@ -181,6 +212,7 @@ namespace ModelMessageInterface
             if (socket != null)
             {
                 socket.Dispose();
+                socket = null;
             }
 
             if (context != null)
